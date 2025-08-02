@@ -4,6 +4,8 @@ import qrcode
 import hashlib
 import os
 import numpy as np
+import socket
+import threading
 
 
 # Database setup
@@ -17,8 +19,22 @@ def init_db():
                         face_image_path TEXT)''')
     conn.commit()
     conn.close()
+import socket
 
+def connect_to_server():
+    try:
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_ip = '192.168.0.107'  # Same as the server's IP
+        server_port = 5000
+        client_socket.connect((server_ip, server_port))  # Connect to the server
+        print("Connected to the server!")
+        message = client_socket.recv(1024).decode()
+        print(f"Server: {message}")
+        client_socket.close()
+    except Exception as e:
+        print(f"Failed to connect to the server: {e}")
 
+        
 # Helper functions
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -158,7 +174,7 @@ def recognize_face(username):
                 label, confidence = recognizer.predict(face)
 
                 # If the confidence is below the threshold, it's a match
-                if confidence < 70:  # Threshold value can be adjusted
+                if confidence < 80:  # Threshold value can be adjusted
                     print("Face recognized successfully!")
                     cam.release()
                     cv2.destroyAllWindows()
@@ -212,7 +228,6 @@ def register_user():
     print("User registered successfully!")
 
 
-# Login
 def login_user():
     username = input("Enter username: ")
     password = input("Enter password: ")
@@ -264,9 +279,8 @@ def login_user():
     else:
         return False
 
-
 # Main
-if __name__ == "__main__":
+if _name_ == "_main_":
     init_db()
     while True:
         choice = input("Choose an option: [1] Register [2] Login [3] Exit: ")
@@ -275,10 +289,11 @@ if __name__ == "__main__":
         elif choice == '2':
             if login_user():
                 print("Authentication successful!")
-                print("welcome you have given access to the system")
+                print("connecting to the server....")
+                connect_to_server()
             else:
                 print("Authentication failed.")
         elif choice == '3':
             break
         else:
-            print("Invalid choice. Please try again.")
+            print("Invalid choice. Please try again.")
